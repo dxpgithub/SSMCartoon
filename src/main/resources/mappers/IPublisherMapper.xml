@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.city.cartoon.mapper.IPublisherMapper">
+
+	<resultMap type="Publisher" id="PublisherMap">
+		<id property="publisherid" column="pubid"></id>
+		<result property="publishername" column="pubname"/>
+	</resultMap>
+	
+	<select id="selectAll" resultMap="PublisherMap">
+	select pubid,pubname from publisher;
+	</select>
+	
+	
+	<!-- 新增 -->
+	<insert id="Insert">
+	insert into publisher(pubname) values(#{publishername});
+	</insert>
+	
+	<update id="Update">
+	update publisher
+	<set>
+		<if test="publishername!=null and publishername!='' ">
+			pubname=#{publishername}
+		</if>
+	</set>
+	where pubid=#{publisherid};
+	</update>
+	
+	<delete id="Delete">
+	delete from publisher
+	where pubid=#{publisherid};
+	</delete>
+</mapper>

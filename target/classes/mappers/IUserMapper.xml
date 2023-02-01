@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.city.cartoon.mapper.IUserMapper">
+	<!-- 无图片映射 -->
+	<resultMap type="USer" id="USerMap">
+		<id property="userid" column="userid"></id>
+		<result property="userpassword" column="userpassword"/>
+		<result property="username" column="username"/>
+		
+	</resultMap>
+	<!-- 有图片映射 -->
+	<resultMap type="USer" id="UserMapWithPhoto" extends="USerMap">
+		<result property="photo" column="userphoto"/>
+		<result property="filename" column="filename"/>
+		<result property="contenttype" column="contenttype"/>
+	</resultMap>
+	
+	<resultMap type="User" id="CartoonByUSer" extends="USerMap">
+			<collection property="cartoons" javaType="list" ofType="Cartoon"
+			 resultMap="com.city.cartoon.mapper.ICartoonMapper.CartoonMapWithPhoto" />
+	</resultMap>
+	
+	<resultMap type="User" id="CategoryByUSer" extends="USerMap">
+			<collection property="categorys" javaType="list" ofType="Category"
+			 resultMap="com.city.cartoon.mapper.ICategoryMapper.CategoryMap" />
+	</resultMap>
+	
+	<!-- 验证登录 -->
+	<select id="validate" resultMap="USerMap">
+	select * from cuser  where userid=#{id} and userpassword=#{password}
+	</select>
+	
+	<!-- 按ID查询 -->
+	<select id="selectByNo" resultMap="UserMapWithPhoto" >
+	select * from cuser 
+	where userid=#{no}
+	</select>
+	
+	<!-- 注册用户 -->
+	<insert id="InsertUser" keyProperty="userid" useGeneratedKeys="true">
+	insert into cuser(userpassword,username,userphoto,filename,contenttype) values(#{userpassword},#{username},#{photo},#{filename},#{contenttype})
+	</insert>
+	<!-- 更新用户 -->
+	<update id="UpdateUserInfo">
+	UPDATE cuser
+	<set>
+		<if test="username!=null and username!='' ">
+			username=#{username},
+		</if>
+		<if test="userpassword!=null and userpassword!='' ">
+			userpassword=#{userpassword},
+		</if>
+		<if test="photo!=null ">
+			userphoto=#{photo},filename=#{filename},contenttype=#{contenttype}
+		</if>
+	</set> 
+		where userid=#{userid};
+	</update>
+	<!-- 查询已追漫画 -->
+	<select id="selectCartoonByUserid" resultMap="CartoonByUSer" >
+		SELECT c.* FROM cartoon c , cuser u,usercartoon uc
+		WHERE c.cartoonid=uc.cartoonid 
+		AND u.userid=#{id}
+		AND uc.userid=#{id};
+	</select>
+	
+	<!-- 添加喜爱类别 -->
+	<insert id="InsertCategory">
+		insert into usercategory values
+		<foreach collection="categorys" item="category" separator=",">
+		(#{userid},#{category})
+		</foreach>
+	</insert>
+	<!-- 删除原有的喜爱 -->
+	<delete id="deleteCategory" parameterType="int" >
+	delete from usercategory where userid=#{userid}
+	</delete>
+	
+	<select id="selectLikeCategory" resultMap="CategoryByUSer">
+	SELECT cate.categoryno,cate.cname FROM usercategory uc,category cate,cuser u
+	where cate.categoryno=uc.categoryno
+	and u.userid=#{userid}
+	AND uc.userid=#{userid};
+	</select>
+	
+	<insert id="addCartoon">
+	insert into usercartoon values(#{userNo},#{CartoonNo});
+	</insert>
+	
+	<delete id="CancleCartoon">
+	delete from usercartoon
+	where userid=#{userNo}
+	and
+	cartoonid=#{CartoonNo};
+	</delete>
+	
+</mapper>

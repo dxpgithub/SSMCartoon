@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.city.cartoon.mapper.IStateMapper">
+
+	<resultMap type="State" id="StateMap">
+		<id property="stateid" column="stateid"></id>
+		<result property="sname" column="sname"/>
+	</resultMap>
+	
+	<select id="selectAll" resultMap="StateMap">
+	select * from state;
+	</select>
+	
+</mapper>

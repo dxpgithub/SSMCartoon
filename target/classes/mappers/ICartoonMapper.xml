@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.city.cartoon.mapper.ICartoonMapper">
+	<!-- 无图片映射 -->
+	<resultMap type="Cartoon" id="CartoonMap">
+		<id property="cartoonid" column="cartoonid"></id>
+		<result property="cartoonname" column="cartoonname"/>
+		<result property="author" column="author"/>
+		<result property="description" column="description"/>
+		<result property="cartoondate" column="cartoondate" jdbcType="TIMESTAMP"/>
+		
+	</resultMap>
+	<!-- 有图片映射 -->
+	<resultMap type="Cartoon" id="CartoonMapWithPhoto" extends="CartoonMap">
+		<result property="photo" column="photo"/>
+		<result property="filename" column="filename"/>
+		<result property="contenttype" column="contenttype"/>
+	</resultMap>
+	
+	<!-- 对一关联 -->
+	<resultMap type="Cartoon" id="CartoonMapWithAssociation" extends="CartoonMapWithPhoto">
+		<association property="category" javaType="Category"
+		resultMap="com.city.cartoon.mapper.ICategoryMapper.CategoryMap" 
+		/>
+
+		<association property="publisher" javaType="Publisher"
+		resultMap="com.city.cartoon.mapper.IPublisherMapper.PublisherMap" 
+		/>
+			
+		
+		<association property="state" javaType="State" 
+		resultMap="com.city.cartoon.mapper.IStateMapper.StateMap" 
+		/>
+			
+	</resultMap>
+	
+	<!-- 对多关联 -->
+	<resultMap type="Cartoon" id="CartoonMapWithCollection" extends="CartoonMapWithPhoto">
+	 	<collection property="users" javaType="USer" 
+	 	resultMap="com.city.cartoon.mapper.IUserMapper.USerMap" />
+	</resultMap>
+	
+	<!-- 按日期查询最近的6个 -->
+	<select id="selectByTime" resultMap="CartoonMap">
+		SELECT * FROM cartoon  ORDER BY cartoondate DESC LIMIT 6
+	</select>
+	
+	<!-- 取得类别分类6个 -->
+	<select id="selectByType" parameterType="String" resultMap="CartoonMap">
+		SELECT cm.* FROM cartoon cm,category cate 
+		WHERE cm.categoryno=cate.categoryno 
+		AND cate.cname=#{typename} LIMIT 6
+	</select>
+	
+	<!-- 取指定编号 -->
+	<select id="selectByNo" parameterType="int" resultMap="CartoonMapWithAssociation" >
+	SELECT c.*,pt.ParentTypeName,ct.ChildTypeName,st.SunTypeName,
+spinfo.SpecificationsName,disinfo.DiscountName,disinfo.DiscountStartDate,disinfo.DiscountEndDate
+FROM commodityinfo c,parenttype pt,childtype ct,suntype st,specificationinfo spinfo,discountinfo disinfo
+WHERE c.ParentTypeId=pt.ParentTypeId 
+AND c.ChildTypeId=ct.ChildTypeId
+AND c.SunTypeId=st.SunTypeId
+AND c.SpecificationsId=spinfo.SpecificationsId
+AND c.DiscountId=disinfo.DiscountId
+AND c.CommodityId=#{no}
+	
+	</select>
+	
+	<!-- 查询所有数据,分页显示 -->
+	<select id="selectByAll"  resultMap="CartoonMapWithAssociation">
+	
+	SELECT * FROM cartoon c,category cate,publisher pub,state s
+	WHERE c.categoryno=cate.categoryno
+	AND c.stateid=s.stateid
+	AND c.pubid=pub.pubid
+	limit #{page},#{rows}
+	</select>
+	
+
+	
+	
+	<!-- 取全部个数 -->
+	<select id="selectCount" resultType="int">
+		select count(*) from cartoon
+	</select>
+	
+	<!-- 取按类别名称分类的所有 -->
+	<select id="selectByTypeALL" resultMap="CartoonMap">
+		select * from cartoon cm,category cate 
+		where  cm.categoryno=cate.categoryno 
+		and cate.cname=#{typename}
+		limit #{page},#{rows}
+	</select>
+	
+	<!-- 取类别分类的个数 -->
+	<select id="selectCountByTypename" resultType="int">
+		select count(*)  from cartoon cm,category cate 
+		where  cm.categoryno=cate.categoryno 
+		and cate.cname=#{typename}
+	</select>
+	
+	<!-- 模糊查询 -->
+	<select id="selectByName" resultMap="CartoonMap">
+		select * from cartoon  where 1 = 1
+		<if test="cartoonName!=null and cartoonName!='' ">
+			and cartoonname like "%"#{cartoonName}"%"
+		</if>
+	</select>
+
+	<select id="selectByUpdateState" resultMap="CartoonMap">
+		select * from cartoon c,state sta 
+		where c.stateid=sta.stateid
+		and sta.sname=#{stateName}
+	</select>
+	
+	
+	
+	<!-- 新增漫画 -->
+	<insert id="insert" keyProperty="cartoonid" useGeneratedKeys="true">
+	insert into cartoon(cartoonname,author,description,categoryno,
+	stateid,cartoondate,pubid,
+	photo,filename,contenttype) 
+	values
+	(#{cartoonname},#{author},#{description},#{category.categoryno},
+	#{state.stateid},#{cartoondate},#{publisher.publisherid},
+	#{photo},#{filename},#{contenttype});
+	</insert>
+	
+	<!-- 修改 -->
+	<update id="update">
+	update cartoon 
+	<set>
+		<if test="cartoonname!=null and cartoonname!='' ">
+			cartoonname=#{cartoonname},
+		</if>
+		
+		<if test="author!=null and author!='' ">
+			author=#{author},
+		</if>
+		
+		<if test="description!=null and description!='' ">
+			description=#{description},
+		</if>
+		
+		<if test="category.categoryno!=null and category.categoryno!='' ">
+			categoryno=#{category.categoryno},
+		</if>
+		
+		<if test="state.stateid!=null and state.stateid!='' ">
+			stateid=#{state.stateid},
+		</if>
+		
+		<if test="cartoondate!=null ">
+			cartoondate=#{cartoondate},
+		</if>
+		
+		<if test="photo!=null ">
+			photo=#{photo},filename=#{filename},contenttype=#{contenttype}
+		</if>
+		<if test="publisher.publisherid!=null and publisher.publisherid!='' ">
+			pubid=#{publisher.publisherid},
+		</if>
+	</set>
+	where cartoonid=#{cartoonid};
+	</update>
+	
+	
+	<delete id="delete">
+	delete from cartoon
+	where cartoonid=#{cartoonid};
+	</delete>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+

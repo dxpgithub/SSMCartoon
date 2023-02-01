@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.city.cartoon.mapper.ICategoryMapper">
+
+	<resultMap type="Category" id="CategoryMap">
+		<id property="categoryno" column="categoryno"></id>
+		<result property="cname" column="cname"/>
+	</resultMap>
+	
+	<resultMap type="Category" id="CategoryMapWithCollection" >
+	 	<collection property="users" javaType="USer" 
+	 	resultMap="com.city.cartoon.mapper.IUserMapper.USerMap" />
+	</resultMap>
+	
+	<!-- 查询所有数据 -->
+	<select id="selectAll"  resultMap="CategoryMap">
+		select * from category
+	</select>
+	
+	<select id="selectByNo" resultMap="CategoryMap" >
+	select * from category where categoryno=#{no};
+	</select>
+	
+	<!-- 新增 -->
+	<insert id="Insert">
+	insert into category(cname) values(#{cname});
+	</insert>
+	
+	<update id="Update">
+	update category
+	<set>
+		<if test="cname!=null and cname!='' ">
+			cname=#{cname}
+		</if>
+	</set>
+	where categoryno=#{categoryno};
+	</update>
+	
+	<delete id="Delete">
+	delete from category
+	where categoryno=#{categoryno}
+	</delete>
+</mapper>

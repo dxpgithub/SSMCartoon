@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.city.cartoon.mapper.IAdministratorMapper">
+
+	<resultMap type="Administrator" id="AdministratorMap">
+		<id property="adminid" column="adminid"></id>
+		<result property="adminpassword" column="adminpassword"/>
+	</resultMap>
+
+	<!-- 验证登录 -->
+	<select id="validate" resultMap="AdministratorMap">
+	select * from administrator  where adminid=#{id} and adminpassword=#{password}
+	</select>
+
+</mapper>

@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Built-By: Greedy Hunter
+Build-Jdk: 16.0.1
+Implementation-Title: NETCTOSS
+Implementation-Version: 0.0.1-SNAPSHOT
+Implementation-Vendor-Id: com.city
+Implementation-Vendor: Pivotal Software, Inc.
+Implementation-URL: http://projects.spring.io/spring-boot/NETCTOSS/
+Created-By: Maven Integration for Eclipse
+
